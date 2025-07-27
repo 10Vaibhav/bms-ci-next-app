@@ -23,11 +23,14 @@ jobs:
           passphrase: ${{ secrets.PHRASE }}
           port: 22
           script: |
+            # Set PATH to include Node.js binaries
+            export PATH="/home/ubuntu/.nvm/versions/node/v22.17.1/bin:$PATH"
+            
             cd /home/ubuntu/bms-ci-next-app
             git pull
-            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pnpm install
-            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pnpm run build
-            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2 restart fe-server
-            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2 restart http-server
-            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2 restart ws-server
+            pnpm install
+            pnpm run build
+            pm2 restart fe-server
+            pm2 restart http-server
+            pm2 restart ws-server
             echo "Deployment completed! App is running with PM2."

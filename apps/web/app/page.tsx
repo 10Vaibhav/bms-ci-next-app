@@ -11,7 +11,9 @@ export default async function Home() {
         password:
         {user?.password}
 
-        hello ji
+        <div>
+          <h1>hello ji</h1>
+        </div>
     </div>
   );
 }

@@ -24,7 +24,10 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/bms-ci-next-app
-            git stash  # Stash local changes to avoid conflicts
-            git pull   # Pull latest changes
-            chmod +x deploy.sh
-            ./deploy.sh
+            git pull
+            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pnpm install
+            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pnpm run build
+            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2 restart fe-server
+            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2 restart http-server
+            /home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2 restart ws-server
+            echo "Deployment completed! App is running with PM2."

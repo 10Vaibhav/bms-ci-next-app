@@ -11,6 +11,7 @@ jobs:
     steps:
       - run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
+          echo "${{ secrets.KNOWN_HOSTS }}" &> ~/ssh_key/known_hosts
           ssh -i ~/ssh_key ubuntu@43.204.107.45
           cd bms-ci-next-app/ && git pull
           pnpm install

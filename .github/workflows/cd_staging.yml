@@ -9,18 +9,31 @@ jobs:
     name: Deploying Everything to the staging cluster
 
     steps:
-      - run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          mkdir -p /home/runner/.ssh
-          ls /home/runner/.ssh
-          touch /home/runner/.ssh/known_hosts
-          echo "${{ secrets.KNOWN_HOSTS }}" &> /home/runner/.ssh/known_hosts
-          chmod 700 /home/runner/ssh_key
-          chmod 600 /home/runner/.ssh/known_hosts
-          ssh -i ~/ssh_key ubuntu@43.204.107.45
-          cd bms-ci-next-app/ && git pull
-          pnpm install
-          pnpm run build
-          pm2 restart fe-server
-          pm2 restart http-server
-          pm2 restart ws-server
+      - name: Setup SSH
+        run: |
+          # Create SSH directory with proper permissions
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Setup SSH private key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Setup known_hosts
+          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          
+          # Test SSH key format (optional debug step)
+          ssh-keygen -l -f ~/.ssh/id_rsa
+
+      - name: Deploy to server
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@43.204.107.45 << 'EOF'
+            cd bms-ci-next-app/
+            git pull
+            pnpm install
+            pnpm run build
+            pm2 restart fe-server
+            pm2 restart http-server
+            pm2 restart ws-server
+          EOF

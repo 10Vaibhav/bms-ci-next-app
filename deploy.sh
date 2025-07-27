@@ -2,7 +2,7 @@
 
 export PATH=/usr/local/bin:/usr/bin:/usr/sbin:/sbin:$PATH
 
-# Use full paths based on your NVM installation
+# Use full paths for Node.js tools installed via NVM
 PNPM_PATH="/home/ubuntu/.nvm/versions/node/v22.17.1/bin/pnpm"
 PM2_PATH="/home/ubuntu/.nvm/versions/node/v22.17.1/bin/pm2"
 

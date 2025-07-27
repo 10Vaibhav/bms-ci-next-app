@@ -10,7 +10,6 @@ export default async function Home() {
         {user?.username}
         password:
         {user?.password}
-
         <div>
           <h1>hello ji</h1>
         </div>

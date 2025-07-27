@@ -2,66 +2,22 @@ name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
-    name: Push to EC2
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v4
-
-      - name: Execute remote SSH commands using SSH key
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.0.3
         with:
           host: 43.204.107.45
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.PHRASE }}
-          port: 22
           script: |
-            # Set PATH to include Node.js binaries
-            export PATH="/home/ubuntu/.nvm/versions/node/v22.17.1/bin:$PATH"
-            
             cd /home/ubuntu/bms-ci-next-app
+            git stash
             git pull
-            pnpm install
-            
-            # Generate Prisma client before building
-            echo "Generating Prisma client..."
-            cd packages/db
-            pnpm exec prisma generate
-            cd ../..
-            
-            # Build the project
-            echo "Building project..."
-            pnpm run build
-            
-            # Check if build succeeded
-            if [ ! -f "apps/http-server/dist/index.js" ]; then
-                echo "❌ Build failed: http-server dist/index.js not found"
-                exit 1
-            fi
-            
-            if [ ! -f "apps/ws-server/dist/index.js" ]; then
-                echo "❌ Build failed: ws-server dist/index.js not found"
-                exit 1
-            fi
-            
-            echo "✅ Build successful, restarting services..."
-            
-            # Restart PM2 services
-            pm2 restart fe-server
-            pm2 restart http-server
-            pm2 restart ws-server
-            
-            # Wait a moment for services to start
-            sleep 3
-            
-            # Show PM2 status
-            pm2 list
-            
-            echo "Deployment completed! App is running with PM2."
+            chmod +x deploy.sh
+            ./deploy.sh

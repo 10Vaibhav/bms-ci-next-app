@@ -9,20 +9,16 @@ jobs:
     name: Deploying Everything to the staging cluster
 
     steps:
-      - name: Deploy to staging server
-        run: |
-          # Create SSH directory and set up key
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/staging_key
-          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+      - run: |
+          # Set up SSH key and directory
+          mkdir -p /home/runner/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          echo "${{ secrets.KNOWN_HOSTS }}" > /home/runner/.ssh/known_hosts
+          chmod 600 ~/ssh_key
+          chmod 700 /home/runner/.ssh
           
-          # Set correct permissions
-          chmod 600 ~/.ssh/staging_key
-          chmod 644 ~/.ssh/known_hosts
-          chmod 700 ~/.ssh
-          
-          # Connect and execute commands on remote server
-          ssh -i ~/.ssh/staging_key -o StrictHostKeyChecking=no ubuntu@43.204.107.45 << 'EOF'
+          # Connect via SSH and run commands
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@43.204.107.45 << 'EOF'
             cd bms-ci-next-app/
             git pull
             pnpm install

@@ -6,35 +6,20 @@ on:
 jobs:
   redeploy_everything:
     runs-on: ubuntu-latest
-    name: Deploying everything to the staging cluster
-    steps:
-      - name: Setup SSH
-        run: |
-          # Create SSH directory with proper permissions
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          # Setup SSH private key with proper permissions
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 700 ~/.ssh/id_rsa
-          
-          # Setup known hosts
-          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 700 ~/.ssh/known_hosts
-          
-          # Test SSH connection
-          ssh-keyscan -H 43.204.107.45 >> ~/.ssh/known_hosts
+    name: Deploying Everything to the staging cluster
 
-      - name: Deploy to staging
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.204.107.45 << 'EOF'
-            cd bms-ci-next-app/
-            git pull origin main
-            export PATH=/home/ubuntu/.nvm/versions/node/v22.17.1/bin:$PATH
-            npm install -g pnpm
-            pnpm install
-            pnpm run build
-            pm2 restart fe-sever
-            pm2 restart http-sever
-            pm2 restart ws-sever
-          EOF
+    steps:
+      - run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
+          mkdir -p /home/runner/.ssh
+          ls /home/runner/.ssh
+          touch /home/runner/.ssh/known_hosts
+          echo "${{ secrets.KNOWN_HOSTS }}" &> /home/runner/.ssh/known_hosts
+          chmod +x /home/runner/ssh_key
+          ssh -i ~/ssh_key ubuntu@43.204.107.45
+          cd bms-ci-next-app/ && git pull
+          pnpm install
+          pnpm run build
+          pm2 restart fe-server
+          pm2 restart http-server
+          pm2 restart ws-server

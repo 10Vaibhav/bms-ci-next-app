@@ -29,6 +29,10 @@ jobs:
             cd /home/ubuntu/bms-ci-next-app
             git pull
             pnpm install
+            
+            # Generate Prisma client before building
+            pnpm exec prisma generate
+            
             pnpm run build
             pm2 restart fe-server
             pm2 restart http-server

@@ -1,5 +1,5 @@
-export PATH=/usr/local/bin:/usr/bin:/usr/sbin:/sbin:$PATH
-
+#!/bin/bash
+source ~/.bashrc
 
 git pull
 pnpm install

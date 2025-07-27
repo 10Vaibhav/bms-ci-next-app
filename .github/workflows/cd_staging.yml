@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v4  # Updated version
+        uses: actions/checkout@v4
 
       - name: Execute remote SSH commands using SSH key
-        uses: appleboy/ssh-action@v1.0.3  # Specify version
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: 43.204.107.45
           username: ubuntu
@@ -24,5 +24,7 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/bms-ci-next-app
+            git stash  # Stash local changes to avoid conflicts
+            git pull   # Pull latest changes
             chmod +x deploy.sh
             ./deploy.sh

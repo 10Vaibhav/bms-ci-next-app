@@ -16,11 +16,11 @@ jobs:
           
           # Setup SSH private key with proper permissions
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh/id_rsa
           
           # Setup known hosts
           echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+          chmod 700 ~/.ssh/known_hosts
           
           # Test SSH connection
           ssh-keyscan -H 43.204.107.45 >> ~/.ssh/known_hosts

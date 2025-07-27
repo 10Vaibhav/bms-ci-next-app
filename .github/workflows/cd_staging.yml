@@ -1,27 +1,28 @@
-name: Deploy to staging
+name: Deploy to EC2
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  redeploy_everything:
+  deploy:
+    name: Push to EC2
     runs-on: ubuntu-latest
-    name: Deploying Everything to the staging cluster
 
     steps:
-      - run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
-          chmod 600 ~/ssh_key
-          mkdir -p /home/runner/.ssh
-          chmod 700 /home/runner/.ssh
-          ls /home/runner/.ssh
-          touch /home/runner/.ssh/known_hosts
-          chmod 644 /home/runner/.ssh/known_hosts
-          echo "${{ secrets.KNOWN_HOSTS }}" > /home/runner/.ssh/known_hosts
-          ssh -i ~/ssh_key ubuntu@43.204.107.45
-          cd bms-ci-next-app/ && git pull
-          pnpm install
-          pnpm run build
-          pm2 restart fe-server
-          pm2 restart http-server
-          pm2 restart ws-server
+      - name: Checkout the code
+        uses: actions/checkout@v4  # Updated version
+
+      - name: Execute remote SSH commands using SSH key
+        uses: appleboy/ssh-action@v1.0.3  # Specify version
+        with:
+          host: 43.204.107.45
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PHRASE }}
+          port: 22
+          script: |
+            cd /home/ubuntu/bms-ci-next-app
+            chmod +x deploy.sh
+            ./deploy.sh
